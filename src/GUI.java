@@ -40,7 +40,8 @@ public class GUI extends JPanel implements ActionListener, ChangeListener {
 
 		JPanel buttonPanel = new JPanel();
 
-		simulationList = new JComboBox<>(new String[]{"Game of Life", "Rain"});
+		simulationList = new JComboBox<>(new String[]{"Game of Life", "Cities", "Coral", "Rain"});
+		simulationList.setActionCommand("simulation changed");
 		simulationList.addActionListener(this);
 
 		start = new JButton("Start");
@@ -65,9 +66,6 @@ public class GUI extends JPanel implements ActionListener, ChangeListener {
 		buttonPanel.add(clear);
 		buttonPanel.add(pred);
 
-
-		// TODO: add button with choice: gol vs. rain
-
 		board = new Board(1024, 768 - buttonPanel.getHeight());
 		container.add(board, BorderLayout.CENTER);
 		container.add(buttonPanel, BorderLayout.SOUTH);
@@ -80,30 +78,54 @@ public class GUI extends JPanel implements ActionListener, ChangeListener {
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource().equals(timer)) {
 			iterNum++;
-			frame.setTitle("Game of Life (" + Integer.toString(iterNum) + " iteration)");
+			frame.setTitle(simulationList.getSelectedItem() + " (" + Integer.toString(iterNum) + " iteration)");
 			board.iteration();
 		} else {
 			String command = e.getActionCommand();
-			if (command.equals("Start")) {
-				if (!running) {
-					timer.start();
-					start.setText("Pause");
-				} else {
+			switch (command) {
+				case "Start" -> {
+					if (!running) {
+						timer.start();
+						start.setText("Pause");
+					} else {
+						timer.stop();
+						start.setText("Start");
+					}
+					running = !running;
+					clear.setEnabled(true);
+				}
+				case "clear" -> {
+					iterNum = 0;
 					timer.stop();
+					running = false;
+					start.setEnabled(true);
+					board.clear();
+					frame.setTitle("Cellular Automata Toolbox");
 					start.setText("Start");
 				}
-				running = !running;
-				clear.setEnabled(true);
-
+				case "simulation changed" -> {
+					// reset simulation
+					iterNum = 0;
+					timer.stop();
+					running = false;
+					start.setEnabled(true);
+					board.clear();
+					frame.setTitle("Cellular Automata Toolbox");
+					start.setText("Start");
+					String s = (String) simulationList.getSelectedItem();
+					int simulationNumber = switch (s) {
+						case "Game of Life" -> 1;
+						case "Cities" -> 2;
+						case "Coral" -> 3;
+						case "Rain" -> 4;
+						default -> throw new IllegalStateException("Unexpected demo box value: " + s);
+					};
+					// set simulation numbers and assign neighbors once again
+					this.board.setSimulationNumber(simulationNumber);
+					Point.setSimulationNumber(simulationNumber);
+					board.assignAllNeighbors();
+				}
 			}
-			else if (command.equals("clear")) {
-				iterNum = 0;
-				timer.stop();
-				start.setEnabled(true);
-				board.clear();
-				frame.setTitle("Cellular Automata Toolbox");
-			} 
-			//TODO: commands
 		}
 	}
 
