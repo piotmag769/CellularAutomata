@@ -134,4 +134,8 @@ public class Point {
 	public static void setSimulationNumber(int simulationNumber) {
 		Point.simulationNumber = simulationNumber;
 	}
+
+	public void setNextState(int nextState) {
+		this.nextState = nextState;
+	}
 }

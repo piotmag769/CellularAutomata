@@ -50,6 +50,7 @@ public class Board extends JComponent implements MouseInputListener, ComponentLi
 		for (int x = 0; x < points.length; ++x)
 			for (int y = 0; y < points[x].length; ++y) {
 				points[x][y].setState(0);
+				points[x][y].setNextState(0);
 			}
 		this.repaint();
 	}
